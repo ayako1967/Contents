@@ -12,10 +12,23 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
+import android.view.View;
+
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSIONS_REQUEST_CODE = 100;
+
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //Android 6.0 以降の場合
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //パーミッションの許可状態を確認する
             if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
@@ -37,12 +51,15 @@ public class MainActivity extends AppCompatActivity {
             //Android 5 系以下の場合
         } else {
             getContentsInfo();
+
         }
+
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[],int[] grantResults) {
+                                           String permissions[], int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_CODE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -66,17 +83,57 @@ public class MainActivity extends AppCompatActivity {
                 null//ソート
         );
 
-        if (cursor.moveToFirst()) {
 
+        if (cursor.moveToFirst()) {
+            do {
                 //indexからIDを取得、画像のURI取得
-                int fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-                Long id = cursor.getLong(fieldIndex);
-                Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,id);
+                ImageView imageView = (ImageView) findViewById(R.id.imageView);
+                imageView.setImageURI( uriList.get(0) );
+
+            } while (cursor.moveToNext());
+        }
+                cursor.close();
+    }
+
+    int showIndex = 0;
+    ArrayList<Uri> uriList = new ArrayList<Uri>();
+
+    public void onClick(View v) {
+
+        // 再生ボタンを押した時
+        TimerTask task = new TimerTask() {
+            public void run() {
+                showIndex++;
+                if (showIndex >= uriList.size()) {
+                    showIndex = 0;
+                }
+
+                Uri imageUri = uriList.get(showIndex);
+
+                ImageView imageView = (ImageView) findViewById(R.id.imageView);
+                imageView.setImageURI(imageUri);
+            }
+        };
+
+
+
+        Timer timer = new Timer();
+        timer.schedule(task, 0L, 2000);
+    }
+
+    public class SlideTask extends TimerTask {
+        SlideTask task = new SlideTask();
+        public void run() {
+            showIndex++;
+            if (showIndex >= uriList.size()) {
+                showIndex = 0;
+            }
+
+            Uri imageUri = uriList.get(showIndex);
 
             ImageView imageView = (ImageView) findViewById(R.id.imageView);
             imageView.setImageURI(imageUri);
-
         }
-        cursor.close();
     }
+
 }
