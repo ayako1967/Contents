@@ -86,11 +86,19 @@ public class MainActivity extends AppCompatActivity {
 
         if (cursor.moveToFirst()) {
             do {
+
+                int fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+                Long id = cursor.getLong(fieldIndex);
+                Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+                uriList.add(imageUri);
                 //indexからIDを取得、画像のURI取得
                 ImageView imageView = (ImageView) findViewById(R.id.imageView);
-                imageView.setImageURI( uriList.get(0) );
+                imageView.setImageURI(uriList.get(0));
 
-            } while (cursor.moveToNext());
+
+            }
+            while (cursor.moveToNext());
+
         }
                 cursor.close();
     }
@@ -99,6 +107,13 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Uri> uriList = new ArrayList<Uri>();
 
     public void onClick(View v) {
+
+        //進むボタンを押したとき
+
+
+
+        //戻るボタンを押したとき
+
 
         // 再生ボタンを押した時
         TimerTask task = new TimerTask() {
@@ -133,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
             ImageView imageView = (ImageView) findViewById(R.id.imageView);
             imageView.setImageURI(imageUri);
+
         }
     }
 
