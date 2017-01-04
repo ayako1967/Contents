@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.view.View;
 
@@ -24,7 +25,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener  {
 
     private static final int PERMISSIONS_REQUEST_CODE = 100;
 
@@ -32,6 +33,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        Button buttonNext = (Button)findViewById(R.id.button1);
+        Button buttonSlideshow = (Button)findViewById(R.id.button2);
+        Button buttonPrev = (Button)findViewById(R.id.button3);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -107,37 +113,49 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Uri> uriList = new ArrayList<Uri>();
 
     public void onClick(View v) {
+        Log.d("debug", "onClick()メソッドが呼ばれた！");
 
         //進むボタンを押したとき
+        if(v.getId() == R.id.button1) {
 
-
-
-        //戻るボタンを押したとき
-
-
-        // 再生ボタンを押した時
-        TimerTask task = new TimerTask() {
-            public void run() {
                 showIndex++;
                 if (showIndex >= uriList.size()) {
                     showIndex = 0;
                 }
 
                 Uri imageUri = uriList.get(showIndex);
+            Log.d("debug", imageUri.toString());
+            Log.d("debug", "showIndex = " + showIndex);
+                ImageView imageView = (ImageView) findViewById(R.id.imageView);
+                imageView.setImageURI(imageUri);
+
+
+        }
+        //戻るボタンを押したとき
+        else if (v.getId() == R.id.button3) {
+
+                showIndex--;
+                if (showIndex >= 0) {
+                    showIndex = uriList.size();
+                }
+
+                Uri imageUri = uriList.get(showIndex);
 
                 ImageView imageView = (ImageView) findViewById(R.id.imageView);
                 imageView.setImageURI(imageUri);
-            }
-        };
 
 
+        }else if (v.getId() == R.id.button2) {
 
-        Timer timer = new Timer();
-        timer.schedule(task, 0L, 2000);
+            SlideTask task = new SlideTask();
+            Timer timer = new Timer();
+            timer.schedule(task, 0L, 2000);
+        }
+
     }
 
     public class SlideTask extends TimerTask {
-        SlideTask task = new SlideTask();
+
         public void run() {
             showIndex++;
             if (showIndex >= uriList.size()) {
