@@ -34,9 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        Button buttonNext = (Button)findViewById(R.id.button1);
-        Button buttonSlideshow = (Button)findViewById(R.id.button2);
-        Button buttonPrev = (Button)findViewById(R.id.button3);
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -61,6 +59,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+        Button buttonNext = (Button)findViewById(R.id.button1);
+        Button buttonSlideshow = (Button)findViewById(R.id.button2);
+        Button buttonPrev = (Button)findViewById(R.id.button3);
+
+        buttonNext.setOnClickListener(this);
+        buttonSlideshow.setOnClickListener(this);
+        buttonPrev.setOnClickListener(this);
     }
 
     @Override
@@ -162,10 +168,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showIndex = 0;
             }
 
-            Uri imageUri = uriList.get(showIndex);
 
-            ImageView imageView = (ImageView) findViewById(R.id.imageView);
-            imageView.setImageURI(imageUri);
+            (new android.os.Handler()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Uri imageUri = uriList.get(showIndex);
+                    ImageView imageView = (ImageView) findViewById(R.id.imageView);
+                    imageView.setImageURI(imageUri);
+                }
+            });
+
 
         }
     }
